@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">NamazVakitleri</string>
+    <string name="widget_description">Günlük namaz vakitleri widget - Ana ekranınızda namaz vakitlerini görün</string>
 </resources>
