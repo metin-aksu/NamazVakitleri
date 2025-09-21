@@ -105,32 +105,32 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
     return time.substring(0, 5);
   };
 
-  const getNextPrayer = () => {
-    if (!prayerTimes) return null;
+  // const getNextPrayer = () => {
+  //   if (!prayerTimes) return null;
     
-    const now = new Date();
-    const currentTime = now.getHours() * 60 + now.getMinutes();
+  //   const now = new Date();
+  //   const currentTime = now.getHours() * 60 + now.getMinutes();
     
-    const prayers = [
-      { name: 'İmsak', time: prayerTimes.fajr },
-      { name: 'Öğle', time: prayerTimes.dhuhr },
-      { name: 'İkindi', time: prayerTimes.asr },
-      { name: 'Akşam', time: prayerTimes.maghrib },
-      { name: 'Yatsı', time: prayerTimes.isha },
-    ];
+  //   const prayers = [
+  //     { name: 'İmsak', time: prayerTimes.fajr },
+  //     { name: 'Öğle', time: prayerTimes.dhuhr },
+  //     { name: 'İkindi', time: prayerTimes.asr },
+  //     { name: 'Akşam', time: prayerTimes.maghrib },
+  //     { name: 'Yatsı', time: prayerTimes.isha },
+  //   ];
     
-    for (const prayer of prayers) {
-      const [hours, minutes] = prayer.time.split(':').map(Number);
-      const prayerMinutes = hours * 60 + minutes;
+  //   for (const prayer of prayers) {
+  //     const [hours, minutes] = prayer.time.split(':').map(Number);
+  //     const prayerMinutes = hours * 60 + minutes;
       
-      if (prayerMinutes > currentTime) {
-        return prayer;
-      }
-    }
+  //     if (prayerMinutes > currentTime) {
+  //       return prayer;
+  //     }
+  //   }
     
-    // Eğer günün son namazı geçtiyse, ertesi gün İmsak
-    return { name: 'İmsak', time: prayerTimes.fajr };
-  };
+  //   // Eğer günün son namazı geçtiyse, ertesi gün İmsak
+  //   return { name: 'İmsak', time: prayerTimes.fajr };
+  // };
 
   const changeCity = () => {
     navigation.navigate('CitySelection');
@@ -144,8 +144,6 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
       </View>
     );
   }
-
-  const nextPrayer = getNextPrayer();
 
   return (
     <SafeAreaView style={styles.container}>
@@ -215,6 +213,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#0F4C75',
+    paddingTop: StatusBar.currentHeight,
   },
   loadingContainer: {
     flex: 1,
