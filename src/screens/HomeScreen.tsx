@@ -10,6 +10,7 @@ import {
   RefreshControl,
   ScrollView,
   StatusBar,
+  Linking,
 } from 'react-native';
 import { PrayerTimes, UserSettings } from '../types';
 import PrayerTimesService from '../services/PrayerTimesService';
@@ -136,6 +137,13 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
     navigation.navigate('CitySelection');
   };
 
+  const openWebsite = () => {
+    Linking.openURL('http://www.metinaksu.com').catch(err => {
+      console.error('Web sitesi açılırken hata:', err);
+      Alert.alert('Hata', 'Web sitesi açılamadı.');
+    });
+  };
+
   if (loading) {
     return (
       <View style={styles.loadingContainer}>
@@ -154,6 +162,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
         }
         showsVerticalScrollIndicator={false}
+        style={styles.scrollView}
       >
         {/* Header */}
         <View style={styles.header}>
@@ -205,6 +214,13 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
           </View>
         )}
       </ScrollView>
+
+      {/* Footer - En altta sabit */}
+      <View style={styles.footer}>
+        <TouchableOpacity onPress={openWebsite}>
+          <Text style={styles.footerText}>Metin AKSU - metinaksu.com</Text>
+        </TouchableOpacity>
+      </View>
     </SafeAreaView>
   );
 };
@@ -214,6 +230,9 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#0F4C75',
     paddingTop: StatusBar.currentHeight,
+  },
+  scrollView: {
+    flex: 1,
   },
   loadingContainer: {
     flex: 1,
@@ -355,6 +374,18 @@ const styles = StyleSheet.create({
     color: 'white',
     fontSize: 18,
     fontWeight: 'bold',
+  },
+  footer: {
+    alignItems: 'center',
+    paddingVertical: 15,
+    backgroundColor: '#0F4C75',
+    borderTopWidth: 1,
+    borderTopColor: 'rgba(255, 255, 255, 0.1)',
+  },
+  footerText: {
+    color: '#BBE1FA',
+    fontSize: 14,
+    opacity: 0.8,
   },
 });
 
