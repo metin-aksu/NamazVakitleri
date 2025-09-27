@@ -2,7 +2,15 @@ import { PrayerTimes, City, ApiResponse } from '../types';
 
 const API_BASE_URL = 'https://api.aladhan.com/v1';
 
+interface CachedPrayerTimes {
+  data: PrayerTimes;
+  date: string;
+  cityName: string;
+}
+
 class PrayerTimesService {
+  private cachedTimes: CachedPrayerTimes | null = null;
+
   // Namaz vakitlerini getir
   async getPrayerTimes(cityName: string, date?: string): Promise<ApiResponse<PrayerTimes>> {
     try {
@@ -14,16 +22,33 @@ class PrayerTimesService {
         };
       }
 
-      const currentDate = date || new Date().toISOString().split('T')[0];
+      // Türkiye saat dilimi ile güncel tarihi al
+      const currentDate = date || this.getCurrentDateInTurkey();
       
-      // Önce ana API'yi dene
-      try {
-        return await this.fetchFromMainAPI(city.latitude, city.longitude, currentDate);
-      } catch (apiError) {
-        console.log('Ana API başarısız, fallback API deneniyor...');
-        // Ana API başarısız olursa alternatif API dene
-        return await this.fetchFromFallbackAPI(city.latitude, city.longitude, currentDate);
+      // Cache kontrolü - eğer aynı şehir ve tarih için cache varsa kullan
+      if (this.cachedTimes && 
+          this.cachedTimes.cityName === cityName && 
+          this.cachedTimes.date === currentDate) {
+        return {
+          status: 'success',
+          data: this.cachedTimes.data,
+          message: 'Namaz vakitleri başarıyla yüklendi (cache)'
+        };
       }
+
+      // Cache yoksa veya güncel değilse API'den çek
+      const result = await this.fetchPrayerTimesFromAPI(city, currentDate);
+      
+      // Başarılı sonucu cache'le
+      if (result.status === 'success' && result.data) {
+        this.cachedTimes = {
+          data: result.data,
+          date: currentDate,
+          cityName: cityName
+        };
+      }
+
+      return result;
     } catch (error) {
       console.error('Tüm API\'ler başarısız:', error);
       
@@ -40,6 +65,26 @@ class PrayerTimesService {
         status: 'error',
         message: errorMessage
       };
+    }
+  }
+
+  // Türkiye saat dilimi ile güncel tarihi al
+  private getCurrentDateInTurkey(): string {
+    const now = new Date();
+    // Türkiye saat dilimi: UTC+3
+    const turkeyTime = new Date(now.getTime() + (3 * 60 * 60 * 1000));
+    return turkeyTime.toISOString().split('T')[0];
+  }
+
+  // API'den namaz vakitlerini çek
+  private async fetchPrayerTimesFromAPI(city: City, date: string): Promise<ApiResponse<PrayerTimes>> {
+    // Önce ana API'yi dene
+    try {
+      return await this.fetchFromMainAPI(city.latitude, city.longitude, date);
+    } catch (apiError) {
+      console.log('Ana API başarısız, fallback API deneniyor...');
+      // Ana API başarısız olursa alternatif API dene
+      return await this.fetchFromFallbackAPI(city.latitude, city.longitude, date);
     }
   }
 
@@ -200,6 +245,11 @@ class PrayerTimesService {
       { id: '80', name: 'Osmaniye', countryId: 'TR', latitude: 37.2130, longitude: 36.1763 },
       { id: '81', name: 'Düzce', countryId: 'TR', latitude: 40.8438, longitude: 31.1565 }
     ];
+  }
+
+  // Cache'i temizle (gerekirse manuel temizlik için)
+  clearCache(): void {
+    this.cachedTimes = null;
   }
 }
 
