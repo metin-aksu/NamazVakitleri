@@ -8,7 +8,17 @@ class WidgetService {
   static updateWidget(prayerTimes: PrayerTimes, cityName: string): void {
     try {
       if (WidgetModule && WidgetModule.updateWidget) {
-        WidgetModule.updateWidget(prayerTimes, cityName);
+        // Türkiye saat dilimi ile güncel tarihi al
+        const now = new Date();
+        const turkeyTime = new Date(now.getTime() + (3 * 60 * 60 * 1000));
+        const formattedDate = turkeyTime.toLocaleDateString('tr-TR', {
+          day: 'numeric',
+          month: 'long',
+          year: 'numeric'
+        });
+        
+        console.log('Widget güncelleniyor:', { cityName, date: formattedDate });
+        WidgetModule.updateWidget(prayerTimes, cityName, formattedDate);
       }
     } catch (error) {
       console.error('Widget güncellenirken hata:', error);

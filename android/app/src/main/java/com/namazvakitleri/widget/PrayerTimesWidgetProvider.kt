@@ -36,9 +36,10 @@ class PrayerTimesWidgetProvider : AppWidgetProvider() {
             // Namaz vakitlerini al ve güncelle
             val prayerTimes = getStoredPrayerTimes(context)
             val cityName = getStoredCityName(context)
+            val date = getStoredDate(context)
             
-            // Şehir ismini güncelle
-            views.setTextViewText(R.id.widget_city_name, cityName)
+            // Şehir ismi ve tarihi güncelle
+            views.setTextViewText(R.id.widget_city_name, "$cityName - $date")
             
             if (prayerTimes != null) {
                 views.setTextViewText(R.id.widget_fajr, formatTime(prayerTimes.getString("fajr")))
@@ -98,6 +99,16 @@ class PrayerTimesWidgetProvider : AppWidgetProvider() {
             } else {
                 null
             }
+        }
+        
+        private fun getStoredDate(context: Context): String {
+            val sharedPrefs = context.getSharedPreferences("WidgetPrefs", Context.MODE_PRIVATE)
+            return sharedPrefs.getString("date", getCurrentDate()) ?: getCurrentDate()
+        }
+        
+        private fun getCurrentDate(): String {
+            val dateFormat = SimpleDateFormat("d MMMM yyyy", Locale("tr", "TR"))
+            return dateFormat.format(Date())
         }
         
         private fun formatTime(time: String?): String {

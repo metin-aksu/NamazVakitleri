@@ -381,6 +381,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#0F4C75',
     borderTopWidth: 1,
     borderTopColor: 'rgba(255, 255, 255, 0.1)',
+    marginBottom: 50,
   },
   footerText: {
     color: '#BBE1FA',

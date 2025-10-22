@@ -8,7 +8,27 @@ interface IOSWidgetModule {
 const { IOSWidgetModule } = NativeModules;
 
 class IOSWidgetService {
+  // Widget'ı namaz vakitleri ile güncelle
   static updateWidget(prayerTimes: PrayerTimes, cityName: string): void {
+    try {
+      if (IOSWidgetModule && IOSWidgetModule.updateWidget) {
+        // Türkiye saat dilimi ile güncel tarihi al
+        const now = new Date();
+        const turkeyTime = new Date(now.getTime() + (3 * 60 * 60 * 1000));
+        const formattedDate = turkeyTime.toLocaleDateString('tr-TR', {
+          day: 'numeric',
+          month: 'long',
+          year: 'numeric'
+        });
+        
+        IOSWidgetModule.updateWidget(prayerTimes, cityName, formattedDate);
+      }
+    } catch (error) {
+      console.error('iOS Widget güncellenirken hata:', error);
+    }
+  }
+
+  static updateWidgetLegacy(prayerTimes: PrayerTimes, cityName: string): void {
     if (Platform.OS !== 'ios') {
       return;
     }
