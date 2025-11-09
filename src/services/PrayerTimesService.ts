@@ -71,9 +71,10 @@ class PrayerTimesService {
   // Türkiye saat dilimi ile güncel tarihi al
   private getCurrentDateInTurkey(): string {
     const now = new Date();
-    // Türkiye saat dilimi: UTC+3
-    const turkeyTime = new Date(now.getTime() + (3 * 60 * 60 * 1000));
-    return turkeyTime.toISOString().split('T')[0];
+    const day = String(now.getDate()).padStart(2, '0');
+    const month = String(now.getMonth() + 1).padStart(2, '0');
+    const year = now.getFullYear();
+    return `${day}-${month}-${year}`;
   }
 
   // API'den namaz vakitlerini çek
@@ -90,7 +91,10 @@ class PrayerTimesService {
 
   // Ana API'yi dene (HTTPS)
   private async fetchFromMainAPI(latitude: number, longitude: number, date: string): Promise<ApiResponse<PrayerTimes>> {
-    const url = `${API_BASE_URL}/timings/${date}?latitude=${latitude}&longitude=${longitude}&method=13&tune=0,0,0,0,0,0,0,0,0`;
+    // Türkiye için sabit UTC+3 timezone
+    const url = `${API_BASE_URL}/timings/${date}?latitude=${latitude}&longitude=${longitude}&method=13&school=1`;
+    
+    console.log('API URL:', url);
     
     const response = await fetch(url, {
       method: 'GET',
@@ -106,6 +110,8 @@ class PrayerTimesService {
     }
 
     const data = await response.json();
+    
+    console.log('API Response:', JSON.stringify(data, null, 2));
     
     if (data.code === 200 && data.data && data.data.timings) {
       const timings = data.data.timings;
@@ -130,7 +136,7 @@ class PrayerTimesService {
   // Alternatif API (HTTP fallback)
   private async fetchFromFallbackAPI(latitude: number, longitude: number, date: string): Promise<ApiResponse<PrayerTimes>> {
     const httpUrl = API_BASE_URL.replace('https:', 'http:');
-    const url = `${httpUrl}/timings/${date}?latitude=${latitude}&longitude=${longitude}&method=13`;
+    const url = `${httpUrl}/timings/${date}?latitude=${latitude}&longitude=${longitude}&method=13&school=1`;
     
     const response = await fetch(url, {
       method: 'GET',

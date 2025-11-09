@@ -66,11 +66,11 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
   const loadPrayerTimes = async (cityName: string) => {
     try {
       const response = await PrayerTimesService.getPrayerTimes(cityName);
-      
+
       if (response.status === 'success' && response.data) {
         setPrayerTimes(response.data);
         await StorageService.saveLastPrayerTimes(response.data);
-        
+
         // Widget'ları güncelle (Android & iOS)
         WidgetService.updateWidget(response.data, cityName);
         IOSWidgetService.updateWidget(response.data, cityName);
@@ -81,7 +81,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
           setPrayerTimes(cachedTimes);
           WidgetService.updateWidget(cachedTimes, cityName);
           IOSWidgetService.updateWidget(cachedTimes, cityName);
-          Alert.alert('Bilgi', 'Önbelleğe alınmış vakitler gösteriliyor.');
+          // Alert.alert('Bilgi', 'Önbelleğe alınmış vakitler gösteriliyor.');
         } else {
           Alert.alert('Hata', response.message || 'Namaz vakitleri alınamadı.');
         }
@@ -94,8 +94,10 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
 
   const onRefresh = async () => {
     if (!userSettings?.selectedCity) return;
-    
+
     setRefreshing(true);
+    // Cache'i temizle
+    PrayerTimesService.clearCache();
     await loadPrayerTimes(userSettings.selectedCity.name);
     // Widget'ı manuel yenile
     WidgetService.refreshWidget();
@@ -106,32 +108,55 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
     return time.substring(0, 5);
   };
 
-  // const getNextPrayer = () => {
-  //   if (!prayerTimes) return null;
-    
-  //   const now = new Date();
-  //   const currentTime = now.getHours() * 60 + now.getMinutes();
-    
-  //   const prayers = [
-  //     { name: 'İmsak', time: prayerTimes.fajr },
-  //     { name: 'Öğle', time: prayerTimes.dhuhr },
-  //     { name: 'İkindi', time: prayerTimes.asr },
-  //     { name: 'Akşam', time: prayerTimes.maghrib },
-  //     { name: 'Yatsı', time: prayerTimes.isha },
-  //   ];
-    
-  //   for (const prayer of prayers) {
-  //     const [hours, minutes] = prayer.time.split(':').map(Number);
-  //     const prayerMinutes = hours * 60 + minutes;
-      
-  //     if (prayerMinutes > currentTime) {
-  //       return prayer;
-  //     }
-  //   }
-    
-  //   // Eğer günün son namazı geçtiyse, ertesi gün İmsak
-  //   return { name: 'İmsak', time: prayerTimes.fajr };
-  // };
+  // Sıradaki namaz vaktini bul
+  const getNextPrayer = (): string | null => {
+    if (!prayerTimes) return null;
+
+    const now = new Date();
+    const currentTime = now.getHours() * 60 + now.getMinutes();
+
+    const prayers = [
+      { name: 'İmsak', time: prayerTimes.fajr },
+      { name: 'Güneş', time: prayerTimes.sunrise },
+      { name: 'Öğle', time: prayerTimes.dhuhr },
+      { name: 'İkindi', time: prayerTimes.asr },
+      { name: 'Akşam', time: prayerTimes.maghrib },
+      { name: 'Yatsı', time: prayerTimes.isha },
+    ];
+
+    for (const prayer of prayers) {
+      const [hours, minutes] = prayer.time.split(':').map(Number);
+      const prayerMinutes = hours * 60 + minutes;
+
+      if (prayerMinutes > currentTime) {
+        return prayer.name;
+      }
+    }
+
+    return 'İmsak'; // Eğer günün son namazı geçtiyse, ertesi gün İmsak
+  };
+
+  // Vakite kalan süreyi hesapla
+  const getTimeRemaining = (prayerTime: string): string => {
+    const now = new Date();
+    const [hours, minutes] = prayerTime.split(':').map(Number);
+
+    const prayerDate = new Date();
+    prayerDate.setHours(hours, minutes, 0, 0);
+
+    // Eğer vakit geçmişse, ertesi güne ayarla
+    if (prayerDate <= now) {
+      prayerDate.setDate(prayerDate.getDate() + 1);
+    }
+
+    const diffMs = prayerDate.getTime() - now.getTime();
+    const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+    const diffMinutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
+
+    return `${String(diffHours).padStart(2, '0')}:${String(
+      diffMinutes,
+    ).padStart(2, '0')}`;
+  };
 
   const changeCity = () => {
     navigation.navigate('CitySelection');
@@ -156,7 +181,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar barStyle="light-content" backgroundColor="#0F4C75" />
-      
+
       <ScrollView
         refreshControl={
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
@@ -170,7 +195,10 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
             <Text style={styles.cityName}>
               {userSettings?.selectedCity?.name || 'Şehir Seçilmedi'}
             </Text>
-            <TouchableOpacity onPress={changeCity} style={styles.changeCityButton}>
+            <TouchableOpacity
+              onPress={changeCity}
+              style={styles.changeCityButton}
+            >
               <Text style={styles.changeCityText}>Değiştir</Text>
             </TouchableOpacity>
           </View>
@@ -181,35 +209,191 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
         {prayerTimes && (
           <View style={styles.detailsContainer}>
             <Text style={styles.detailsTitle}>Detaylı Vakitler</Text>
-            
-            <View style={styles.detailItem}>
-              <Text style={styles.detailLabel}>İmsak</Text>
-              <Text style={styles.detailTime}>{formatTime(prayerTimes.fajr)}</Text>
+
+            <View
+              style={[
+                styles.detailItem,
+                getNextPrayer() === 'İmsak' && styles.nextPrayerItem,
+              ]}
+            >
+              <Text
+                style={[
+                  styles.detailLabel,
+                  getNextPrayer() === 'İmsak' && styles.nextPrayerLabel,
+                ]}
+              >
+                İmsak
+              </Text>
+              <View style={styles.middleSection}>
+                {getNextPrayer() === 'İmsak' && (
+                  <Text style={styles.remainingTime}>
+                    {getTimeRemaining(prayerTimes.fajr)}
+                  </Text>
+                )}
+              </View>
+              <Text
+                style={[
+                  styles.detailTime,
+                  getNextPrayer() === 'İmsak' && styles.nextPrayerTime,
+                ]}
+              >
+                {formatTime(prayerTimes.fajr)}
+              </Text>
             </View>
-            
-            <View style={styles.detailItem}>
-              <Text style={styles.detailLabel}>Güneş</Text>
-              <Text style={styles.detailTime}>{formatTime(prayerTimes.sunrise)}</Text>
+
+            <View
+              style={[
+                styles.detailItem,
+                getNextPrayer() === 'Güneş' && styles.nextPrayerItem,
+              ]}
+            >
+              <Text
+                style={[
+                  styles.detailLabel,
+                  getNextPrayer() === 'Güneş' && styles.nextPrayerLabel,
+                ]}
+              >
+                Güneş
+              </Text>
+              <View style={styles.middleSection}>
+                {getNextPrayer() === 'Güneş' && (
+                  <Text style={styles.remainingTime}>
+                    {getTimeRemaining(prayerTimes.sunrise)}
+                  </Text>
+                )}
+              </View>
+              <Text
+                style={[
+                  styles.detailTime,
+                  getNextPrayer() === 'Güneş' && styles.nextPrayerTime,
+                ]}
+              >
+                {formatTime(prayerTimes.sunrise)}
+              </Text>
             </View>
-            
-            <View style={styles.detailItem}>
-              <Text style={styles.detailLabel}>Öğle</Text>
-              <Text style={styles.detailTime}>{formatTime(prayerTimes.dhuhr)}</Text>
+
+            <View
+              style={[
+                styles.detailItem,
+                getNextPrayer() === 'Öğle' && styles.nextPrayerItem,
+              ]}
+            >
+              <Text
+                style={[
+                  styles.detailLabel,
+                  getNextPrayer() === 'Öğle' && styles.nextPrayerLabel,
+                ]}
+              >
+                Öğle
+              </Text>
+              <View style={styles.middleSection}>
+                {getNextPrayer() === 'Öğle' && (
+                  <Text style={styles.remainingTime}>
+                    {getTimeRemaining(prayerTimes.dhuhr)}
+                  </Text>
+                )}
+              </View>
+              <Text
+                style={[
+                  styles.detailTime,
+                  getNextPrayer() === 'Öğle' && styles.nextPrayerTime,
+                ]}
+              >
+                {formatTime(prayerTimes.dhuhr)}
+              </Text>
             </View>
-            
-            <View style={styles.detailItem}>
-              <Text style={styles.detailLabel}>İkindi</Text>
-              <Text style={styles.detailTime}>{formatTime(prayerTimes.asr)}</Text>
+
+            <View
+              style={[
+                styles.detailItem,
+                getNextPrayer() === 'İkindi' && styles.nextPrayerItem,
+              ]}
+            >
+              <Text
+                style={[
+                  styles.detailLabel,
+                  getNextPrayer() === 'İkindi' && styles.nextPrayerLabel,
+                ]}
+              >
+                İkindi
+              </Text>
+              <View style={styles.middleSection}>
+                {getNextPrayer() === 'İkindi' && (
+                  <Text style={styles.remainingTime}>
+                    {getTimeRemaining(prayerTimes.asr)}
+                  </Text>
+                )}
+              </View>
+              <Text
+                style={[
+                  styles.detailTime,
+                  getNextPrayer() === 'İkindi' && styles.nextPrayerTime,
+                ]}
+              >
+                {formatTime(prayerTimes.asr)}
+              </Text>
             </View>
-            
-            <View style={styles.detailItem}>
-              <Text style={styles.detailLabel}>Akşam</Text>
-              <Text style={styles.detailTime}>{formatTime(prayerTimes.maghrib)}</Text>
+
+            <View
+              style={[
+                styles.detailItem,
+                getNextPrayer() === 'Akşam' && styles.nextPrayerItem,
+              ]}
+            >
+              <Text
+                style={[
+                  styles.detailLabel,
+                  getNextPrayer() === 'Akşam' && styles.nextPrayerLabel,
+                ]}
+              >
+                Akşam
+              </Text>
+              <View style={styles.middleSection}>
+                {getNextPrayer() === 'Akşam' && (
+                  <Text style={styles.remainingTime}>
+                    {getTimeRemaining(prayerTimes.maghrib)}
+                  </Text>
+                )}
+              </View>
+              <Text
+                style={[
+                  styles.detailTime,
+                  getNextPrayer() === 'Akşam' && styles.nextPrayerTime,
+                ]}
+              >
+                {formatTime(prayerTimes.maghrib)}
+              </Text>
             </View>
-            
-            <View style={styles.detailItem}>
-              <Text style={styles.detailLabel}>Yatsı</Text>
-              <Text style={styles.detailTime}>{formatTime(prayerTimes.isha)}</Text>
+
+            <View
+              style={[
+                styles.detailItem,
+                getNextPrayer() === 'Yatsı' && styles.nextPrayerItem,
+              ]}
+            >
+              <Text
+                style={[
+                  styles.detailLabel,
+                  getNextPrayer() === 'Yatsı' && styles.nextPrayerLabel,
+                ]}
+              >
+                Yatsı
+              </Text>
+              <View style={styles.middleSection}>
+                {getNextPrayer() === 'Yatsı' && (
+                  <Text style={styles.remainingTime}>
+                    {getTimeRemaining(prayerTimes.isha)}
+                  </Text>
+                )}
+              </View>
+              <Text
+                style={[
+                  styles.detailTime,
+                  getNextPrayer() === 'Yatsı' && styles.nextPrayerTime,
+                ]}
+              >
+                {formatTime(prayerTimes.isha)}
+              </Text>
             </View>
           </View>
         )}
@@ -320,28 +504,6 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: 'bold',
   },
-  nextPrayerHighlight: {
-    backgroundColor: 'rgba(255, 215, 0, 0.2)',
-    borderRadius: 8,
-    paddingVertical: 8,
-  },
-  nextPrayerLabel: {
-    color: '#FFD700',
-    fontSize: 11,
-    fontWeight: '600',
-    marginBottom: 2,
-  },
-  nextPrayerName: {
-    color: '#FFD700',
-    fontSize: 13,
-    fontWeight: 'bold',
-    marginBottom: 2,
-  },
-  nextPrayerTime: {
-    color: '#FFD700',
-    fontSize: 15,
-    fontWeight: 'bold',
-  },
   // Details Styles
   detailsContainer: {
     backgroundColor: 'rgba(255, 255, 255, 0.1)',
@@ -369,11 +531,24 @@ const styles = StyleSheet.create({
     color: '#BBE1FA',
     fontSize: 16,
     fontWeight: '500',
+    flex: 1,
+  },
+  middleSection: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  remainingTime: {
+    color: '#ECF0F1',
+    fontSize: 14,
+    fontWeight: '600',
   },
   detailTime: {
     color: 'white',
     fontSize: 18,
     fontWeight: 'bold',
+    flex: 1,
+    textAlign: 'right',
   },
   footer: {
     alignItems: 'center',
@@ -388,6 +563,21 @@ const styles = StyleSheet.create({
     fontSize: 14,
     opacity: 0.8,
   },
+  // next prayer style start
+  nextPrayerItem: {
+    backgroundColor: 'rgba(9, 164, 241, 0.3)',
+    paddingHorizontal: 10,
+    marginHorizontal: -10,
+    borderRadius: 8,
+  },
+  nextPrayerTime: {
+    color: '#ECF0F1',
+  },
+  nextPrayerLabel: {
+    color: '#ECF0F1',
+    fontWeight: '600',
+  },
+  // next prayer style end
 });
 
 export default HomeScreen;
