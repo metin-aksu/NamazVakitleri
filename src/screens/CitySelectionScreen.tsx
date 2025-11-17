@@ -78,9 +78,6 @@ const CitySelectionScreen: React.FC<CitySelectionScreenProps> = ({ navigation })
       
       <View style={styles.header}>
         <Text style={styles.headerTitle}>Türkiye - Şehir Seçimi</Text>
-        <Text style={styles.headerSubtitle}>
-          Yaşadığınız şehri seçin
-        </Text>
       </View>
 
       <View style={styles.searchContainer}>
@@ -108,9 +105,11 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#0F4C75',
+    paddingTop: StatusBar.currentHeight,
   },
   header: {
     padding: 20,
+    paddingTop: 30,
     alignItems: 'center',
   },
   headerTitle: {
@@ -118,11 +117,6 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: 'bold',
     marginBottom: 8,
-  },
-  headerSubtitle: {
-    color: '#BBE1FA',
-    fontSize: 16,
-    textAlign: 'center',
   },
   searchContainer: {
     paddingHorizontal: 20,

@@ -91,8 +91,9 @@ class PrayerTimesService {
 
   // Ana API'yi dene (HTTPS)
   private async fetchFromMainAPI(latitude: number, longitude: number, date: string): Promise<ApiResponse<PrayerTimes>> {
-    // Türkiye için sabit UTC+3 timezone
-    const url = `${API_BASE_URL}/timings/${date}?latitude=${latitude}&longitude=${longitude}&method=13&school=1`;
+    // Türkiye Diyanet İşleri hesaplama yöntemi (method=13)
+    // school parametresi kaldırıldı - Diyanet'in kendi hesaplaması kullanılacak
+    const url = `${API_BASE_URL}/timings/${date}?latitude=${latitude}&longitude=${longitude}&method=13`;
     
     console.log('API URL:', url);
     
@@ -136,7 +137,7 @@ class PrayerTimesService {
   // Alternatif API (HTTP fallback)
   private async fetchFromFallbackAPI(latitude: number, longitude: number, date: string): Promise<ApiResponse<PrayerTimes>> {
     const httpUrl = API_BASE_URL.replace('https:', 'http:');
-    const url = `${httpUrl}/timings/${date}?latitude=${latitude}&longitude=${longitude}&method=13&school=1`;
+    const url = `${httpUrl}/timings/${date}?latitude=${latitude}&longitude=${longitude}&method=13`;
     
     const response = await fetch(url, {
       method: 'GET',
