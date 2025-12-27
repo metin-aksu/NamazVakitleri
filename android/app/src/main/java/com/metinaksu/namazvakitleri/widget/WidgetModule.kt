@@ -1,4 +1,4 @@
-package com.namazvakitleri.widget
+package com.metinaksu.namazvakitleri.widget
 
 import android.content.Context
 import android.util.Log

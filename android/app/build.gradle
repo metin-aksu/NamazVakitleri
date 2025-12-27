@@ -83,9 +83,9 @@ android {
     buildToolsVersion rootProject.ext.buildToolsVersion
     compileSdk rootProject.ext.compileSdkVersion
 
-    namespace "com.namazvakitleri"
+    namespace "com.metinaksu.namazvakitleri"
     defaultConfig {
-        applicationId "com.namazvakitleri"
+        applicationId "com.metinaksu.namazvakitleri"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1

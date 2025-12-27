@@ -1,4 +1,4 @@
-package com.namazvakitleri.widget
+package com.metinaksu.namazvakitleri.widget
 
 import com.facebook.react.ReactPackage
 import com.facebook.react.bridge.NativeModule

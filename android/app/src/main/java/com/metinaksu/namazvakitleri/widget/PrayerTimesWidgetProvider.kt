@@ -1,4 +1,4 @@
-package com.namazvakitleri.widget
+package com.metinaksu.namazvakitleri.widget
 
 import android.app.PendingIntent
 import android.appwidget.AppWidgetManager
@@ -7,8 +7,8 @@ import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.widget.RemoteViews
-import com.namazvakitleri.R
-import com.namazvakitleri.MainActivity
+import com.metinaksu.namazvakitleri.R
+import com.metinaksu.namazvakitleri.MainActivity
 import org.json.JSONObject
 import java.text.SimpleDateFormat
 import java.util.*
