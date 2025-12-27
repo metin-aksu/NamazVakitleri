@@ -9,7 +9,7 @@ Release bundle dosyanız şu konumda oluşturulmuştur:
 **Google Play Console** -> **Production** (veya Testing) kanalına yüklemeniz gereken dosya budur.
 
 ### 2. İmzalama Gizli Bilgileri (Signing Secrets)
-- Keystore dosyası: `android/app/release.keystore`
+- Keystore dosyası: `android/app/src/release.keystore`
 - Giriş bilgileri: `android/key.properties`
 
 > [!IMPORTANT]
