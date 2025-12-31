@@ -204,6 +204,10 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
             </TouchableOpacity>
           </View>
           <Text style={styles.currentDate}>{currentDate}</Text>
+
+          <TouchableOpacity style={styles.headerQiblaButton} onPress={() => navigation.navigate('QiblaCompass')}>
+            <Text style={styles.qiblaButtonText}>🧭 Kıble'yi Bul</Text>
+          </TouchableOpacity>
         </View>
 
         {/* Detaylı Vakitler */}
@@ -400,7 +404,8 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
         )}
       </ScrollView>
 
-      {/* Footer - En altta sabit */}
+
+
       <View style={styles.footer}>
         <TouchableOpacity onPress={openWebsite}>
           <Text style={styles.footerText}>Metin AKSU - metinaksu.com</Text>
@@ -580,6 +585,24 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   // next prayer style end
+  actionButtonsContainer: {
+    paddingHorizontal: 20,
+    marginBottom: 20,
+  },
+  headerQiblaButton: {
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    padding: 12,
+    borderRadius: 10,
+    alignItems: 'center',
+    marginTop: 15,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.2)',
+  },
+  qiblaButtonText: {
+    color: '#FFD700', // Gold color for visibility
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
 });
 
 export default HomeScreen;

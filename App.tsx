@@ -5,6 +5,7 @@ import { StatusBar } from 'react-native';
 
 import HomeScreen from './src/screens/HomeScreen';
 import CitySelectionScreen from './src/screens/CitySelectionScreen';
+import QiblaCompassScreen from './src/screens/QiblaCompassScreen';
 import StorageService from './src/services/StorageService';
 
 const Stack = createStackNavigator();
@@ -45,6 +46,7 @@ export default function App() {
       >
         <Stack.Screen name="Home" component={HomeScreen} />
         <Stack.Screen name="CitySelection" component={CitySelectionScreen} />
+        <Stack.Screen name="QiblaCompass" component={QiblaCompassScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );
