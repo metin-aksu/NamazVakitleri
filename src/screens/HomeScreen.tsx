@@ -164,7 +164,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
   };
 
   const openWebsite = () => {
-    Linking.openURL('http://www.metinaksu.com').catch(err => {
+    Linking.openURL('https://www.metinaksu.com').catch(err => {
       console.error('Web sitesi açılırken hata:', err);
       Alert.alert('Hata', 'Web sitesi açılamadı.');
     });

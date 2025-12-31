@@ -219,7 +219,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     padding: 20,
-    paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight! + 50 : 60,
+    paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight! + 30 : 60,
   },
   backButton: {
     padding: 10,
@@ -268,7 +268,7 @@ const styles = StyleSheet.create({
     borderRadius: COMPASS_SIZE / 2,
     borderWidth: 4,
     borderColor: '#3282B8', // Lighter border to stand out
-    backgroundColor: '#1B262C', // Very dark blue/black for dial contrast
+    backgroundColor: '#1e2d34ff', // Very dark blue/black for dial contrast
     alignItems: 'center',
     justifyContent: 'center',
     shadowColor: '#000',
@@ -355,8 +355,8 @@ const styles = StyleSheet.create({
     width: 30,
     height: 30,
     marginTop: 5,
-    tintColor: '#FFD700', // Gold Kaaba?
   },
+  // tintColor removed to show original colors
   footer: {
     padding: 20,
     alignItems: 'center',
