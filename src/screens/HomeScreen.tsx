@@ -36,7 +36,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
         setUserSettings(settings);
 
         if (settings && settings.selectedCity) {
-          await loadPrayerTimes(settings.selectedCity.name);
+          await loadPrayerTimes(settings.selectedCity);
         } else {
           navigation.replace('CitySelection');
         }
@@ -63,9 +63,10 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
     setCurrentDate(formattedDate);
   };
 
-  const loadPrayerTimes = async (cityName: string) => {
+  const loadPrayerTimes = async (cityOrName: string | any) => {
     try {
-      const response = await PrayerTimesService.getPrayerTimes(cityName);
+      const cityName = typeof cityOrName === 'string' ? cityOrName : cityOrName.name;
+      const response = await PrayerTimesService.getPrayerTimes(cityOrName);
 
       if (response.status === 'success' && response.data) {
         setPrayerTimes(response.data);
@@ -98,7 +99,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
     setRefreshing(true);
     // Cache'i temizle
     PrayerTimesService.clearCache();
-    await loadPrayerTimes(userSettings.selectedCity.name);
+    await loadPrayerTimes(userSettings.selectedCity);
     // Widget'ı manuel yenile
     WidgetService.refreshWidget();
     setRefreshing(false);

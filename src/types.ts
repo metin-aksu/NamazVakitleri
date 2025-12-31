@@ -13,6 +13,14 @@ export interface City {
   countryId: string;
   latitude: number;
   longitude: number;
+  districts?: District[];
+}
+
+export interface District {
+  name: string;
+  slug: string;
+  latitude: number;
+  longitude: number;
 }
 
 export interface Country {
