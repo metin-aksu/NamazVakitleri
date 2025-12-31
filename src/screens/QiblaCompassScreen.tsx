@@ -86,41 +86,48 @@ const QiblaCompassScreen = ({ navigation }: { navigation: any }) => {
   };
 
   const setupCompass = () => {
-    setUpdateIntervalForType(SensorTypes.magnetometer, 100); // 100ms update rate
+    try {
+      setUpdateIntervalForType(SensorTypes.magnetometer, 100); // 100ms update rate
 
-    let lastHeading = 0;
+      let lastHeading = 0;
 
-    const sub = magnetometer.subscribe(({ x, y, z }) => {
-      // Calculate heading
-      let magHeading = Math.atan2(y, x) * (180 / Math.PI);
+      const sub = magnetometer.subscribe({
+        next: ({ x, y, z }) => {
+          // Calculate heading
+          let magHeading = Math.atan2(y, x) * (180 / Math.PI);
 
-      // Normalize to 0-360
-      if (magHeading < 0) {
-        magHeading += 360;
-      }
+          // Normalize to 0-360
+          if (magHeading < 0) {
+            magHeading += 360;
+          }
 
-      // Adjust for true north (magnetic declination) - Simplified for now, assuming roughly aligned
-      // For more precision, we'd need Geolocation to get declination.
-      // But purely magnetic north is usually fine for basic compasses.
+          // Low Pass Filter for smoothing
+          let diff = magHeading - lastHeading;
+          if (diff > 180) diff -= 360;
+          if (diff < -180) diff += 360;
 
-      // Low Pass Filter for smoothing
-      // newHeading = lastHeading + LPF * (currentHeading - lastHeading)
-      // We need to handle the 360-0 transition carefully
+          const smoothedHeading = lastHeading + LPF * diff;
+          let finalHeading = (smoothedHeading + 360) % 360;
 
-      let diff = magHeading - lastHeading;
-      if (diff > 180) diff -= 360;
-      if (diff < -180) diff += 360;
+          lastHeading = finalHeading;
+          setHeading(finalHeading);
+        },
+        error: (err) => {
+          console.log('Magnetometer error:', err);
+          // On Simulator, this error is expected. We can just ignore it or show a message.
+          // Don't crash.
+          if (Platform.OS === 'ios' && __DEV__) {
+            // Mock behavior for simulator if needed, or just log
+            console.warn('Sensors not available on Simulator');
+          }
+        }
+      });
 
-      const smoothedHeading = lastHeading + LPF * diff;
-
-      // Normalize again
-      let finalHeading = (smoothedHeading + 360) % 360;
-
-      lastHeading = finalHeading;
-      setHeading(finalHeading);
-    });
-
-    setSubscription(sub);
+      setSubscription(sub);
+    } catch (err) {
+      console.log('Compass setup error:', err);
+      // Graceful fallback
+    }
   };
 
   const compassStyle = useAnimatedStyle(() => {
@@ -219,7 +226,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     padding: 20,
-    paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight! + 50 : 60,
+    paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight! + 50 : 20,
   },
   backButton: {
     padding: 10,
@@ -233,7 +240,7 @@ const styles = StyleSheet.create({
     color: 'white',
     fontSize: 20,
     fontWeight: 'bold',
-    marginLeft: 70,
+    marginLeft: Platform.OS === 'android' ? 70 : 40,
   },
   infoContainer: {
     alignItems: 'center',
