@@ -213,19 +213,19 @@ const QiblaCompassScreen = ({ navigation }: { navigation: any }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#0F4C75', // Matching HomeScreen blue
+    backgroundColor: '#0F4C75', // Matching HomeScreen blue (Restored)
   },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
     padding: 20,
-    paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight! + 30 : 60,
+    paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight! + 50 : 60,
   },
   backButton: {
     padding: 10,
   },
   backButtonText: {
-    color: '#BBE1FA', // Lighter blue for better contrast on #0F4C75
+    color: '#BBE1FA', // Blue theme accent
     fontSize: 20,
     fontWeight: 'bold',
   },
@@ -267,8 +267,8 @@ const styles = StyleSheet.create({
     height: COMPASS_SIZE,
     borderRadius: COMPASS_SIZE / 2,
     borderWidth: 4,
-    borderColor: '#3282B8', // Lighter border to stand out
-    backgroundColor: '#1e2d34ff', // Very dark blue/black for dial contrast
+    borderColor: '#3282B8', // Blue theme border
+    backgroundColor: '#1e2d34ff', // User's preferred dial color
     alignItems: 'center',
     justifyContent: 'center',
     shadowColor: '#000',

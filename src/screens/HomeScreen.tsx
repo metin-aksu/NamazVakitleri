@@ -205,9 +205,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
           </View>
           <Text style={styles.currentDate}>{currentDate}</Text>
 
-          <TouchableOpacity style={styles.headerQiblaButton} onPress={() => navigation.navigate('QiblaCompass')}>
-            <Text style={styles.qiblaButtonText}>🧭 Kıble'yi Bul</Text>
-          </TouchableOpacity>
+
         </View>
 
         {/* Detaylı Vakitler */}
@@ -402,6 +400,12 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
             </View>
           </View>
         )}
+
+        <View style={styles.actionButtonsContainer}>
+          <TouchableOpacity style={styles.bottomQiblaButton} onPress={() => navigation.navigate('QiblaCompass')}>
+            <Text style={styles.qiblaButtonText}>🧭 Kıble'yi Bul</Text>
+          </TouchableOpacity>
+        </View>
       </ScrollView>
 
 
@@ -589,12 +593,11 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     marginBottom: 20,
   },
-  headerQiblaButton: {
+  bottomQiblaButton: {
     backgroundColor: 'rgba(255, 255, 255, 0.1)',
-    padding: 12,
-    borderRadius: 10,
+    padding: 15,
+    borderRadius: 12,
     alignItems: 'center',
-    marginTop: 15,
     borderWidth: 1,
     borderColor: 'rgba(255, 255, 255, 0.2)',
   },
