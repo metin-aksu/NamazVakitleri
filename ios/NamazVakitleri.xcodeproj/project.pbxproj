@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 70;
+	objectVersion = 56;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -60,7 +60,7 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
-		52A8241E2F05E7EF000A045A /* PBXFileSystemSynchronizedBuildFileExceptionSet */ = {
+		52A8241E2F05E7EF000A045A /* Exceptions for "PrayerTimesWidget" folder in "PrayerTimesWidgetExtension" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				Info.plist,
@@ -70,7 +70,18 @@
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
-		52A8240F2F05E7ED000A045A /* PrayerTimesWidget */ = {isa = PBXFileSystemSynchronizedRootGroup; exceptions = (52A8241E2F05E7EF000A045A /* PBXFileSystemSynchronizedBuildFileExceptionSet */, ); explicitFileTypes = {}; explicitFolders = (); path = PrayerTimesWidget; sourceTree = "<group>"; };
+		52A8240F2F05E7ED000A045A /* PrayerTimesWidget */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				52A8241E2F05E7EF000A045A /* Exceptions for "PrayerTimesWidget" folder in "PrayerTimesWidgetExtension" target */,
+			);
+			explicitFileTypes = {
+			};
+			explicitFolders = (
+			);
+			path = PrayerTimesWidget;
+			sourceTree = "<group>";
+		};
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -201,8 +212,6 @@
 				52A8240F2F05E7ED000A045A /* PrayerTimesWidget */,
 			);
 			name = PrayerTimesWidgetExtension;
-			packageProductDependencies = (
-			);
 			productName = PrayerTimesWidgetExtension;
 			productReference = 52A8240C2F05E7ED000A045A /* PrayerTimesWidgetExtension.appex */;
 			productType = "com.apple.product-type.app-extension";
@@ -288,13 +297,9 @@
 			inputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-NamazVakitleri/Pods-NamazVakitleri-frameworks-${CONFIGURATION}-input-files.xcfilelist",
 			);
-			inputPaths = (
-			);
 			name = "[CP] Embed Pods Frameworks";
 			outputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-NamazVakitleri/Pods-NamazVakitleri-frameworks-${CONFIGURATION}-output-files.xcfilelist",
-			);
-			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -331,13 +336,9 @@
 			inputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-NamazVakitleri/Pods-NamazVakitleri-resources-${CONFIGURATION}-input-files.xcfilelist",
 			);
-			inputPaths = (
-			);
 			name = "[CP] Copy Pods Resources";
 			outputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-NamazVakitleri/Pods-NamazVakitleri-resources-${CONFIGURATION}-output-files.xcfilelist",
-			);
-			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -464,7 +465,7 @@
 				MARKETING_VERSION = 1.0;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
-				PRODUCT_BUNDLE_IDENTIFIER = com.metinaksu.namazvakitleri;
+				PRODUCT_BUNDLE_IDENTIFIER = com.metinaksu.namazvakitleri.PrayerTimesWidget;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
@@ -511,7 +512,7 @@
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MARKETING_VERSION = 1.0;
 				MTL_FAST_MATH = YES;
-				PRODUCT_BUNDLE_IDENTIFIER = com.metinaksu.namazvakitleri;
+				PRODUCT_BUNDLE_IDENTIFIER = com.metinaksu.namazvakitleri.PrayerTimesWidget;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
