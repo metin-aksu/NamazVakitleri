@@ -1,6 +1,12 @@
+//
+//  PrayerTimesWidget.swift
+//  PrayerTimesWidget
+//
+//  Created by Metin AKSU on 1.01.2026.
+//
+
 import WidgetKit
 import SwiftUI
-import Intents
 
 struct PrayerTimesEntry: TimelineEntry {
     let date: Date
@@ -15,6 +21,7 @@ struct PrayerTimesData {
     let aksam: String
     let yatsi: String
     let cityName: String
+    let dateStr: String
     
     static let placeholder = PrayerTimesData(
         imsak: "05:30",
@@ -23,7 +30,8 @@ struct PrayerTimesData {
         ikindi: "16:30",
         aksam: "19:45",
         yatsi: "21:15",
-        cityName: "İstanbul"
+        cityName: "İstanbul",
+        dateStr: "1 Ocak 2026"
     )
 }
 
@@ -49,7 +57,7 @@ struct Provider: TimelineProvider {
     }
     
     private func loadPrayerTimesFromUserDefaults() -> PrayerTimesData {
-        let userDefaults = UserDefaults(suiteName: "group.com.namazvakitleri.widget") ?? UserDefaults.standard
+        let userDefaults = UserDefaults(suiteName: "group.com.metinaksu.namazvakitleri") ?? UserDefaults.standard
         
         return PrayerTimesData(
             imsak: userDefaults.string(forKey: "imsak") ?? "05:30",
@@ -58,7 +66,8 @@ struct Provider: TimelineProvider {
             ikindi: userDefaults.string(forKey: "asr") ?? "16:30",
             aksam: userDefaults.string(forKey: "maghrib") ?? "19:45",
             yatsi: userDefaults.string(forKey: "isha") ?? "21:15",
-            cityName: userDefaults.string(forKey: "cityName") ?? "İstanbul"
+            cityName: userDefaults.string(forKey: "cityName") ?? "Şehir Seçilmedi",
+            dateStr: userDefaults.string(forKey: "date") ?? ""
         )
     }
 }
@@ -67,83 +76,43 @@ struct PrayerTimesWidgetEntryView: View {
     var entry: Provider.Entry
 
     var body: some View {
-        HStack(spacing: 2) {
-            // İmsak
-            VStack(spacing: 1) {
-                Text("İmsak")
-                    .font(.system(size: 8, weight: .bold))
-                    .foregroundColor(.white.opacity(0.8))
-                Text(entry.prayerTimes.imsak)
-                    .font(.system(size: 10, weight: .bold))
-                    .foregroundColor(.white)
-            }
-            .frame(maxWidth: .infinity)
+        VStack(spacing: 8) {
+            // City and Date
+            Text("\(entry.prayerTimes.cityName) - \(entry.prayerTimes.dateStr)")
+                .font(.system(size: 13, weight: .bold))
+                .foregroundColor(.white)
+                .multilineTextAlignment(.center)
+                .padding(.top, 4)
             
-            // Güneş
-            VStack(spacing: 1) {
-                Text("Güneş")
-                    .font(.system(size: 8, weight: .bold))
-                    .foregroundColor(.white.opacity(0.8))
-                Text(entry.prayerTimes.gunes)
-                    .font(.system(size: 10, weight: .bold))
-                    .foregroundColor(.white)
-            }
-            .frame(maxWidth: .infinity)
-            
-            // Öğle
-            VStack(spacing: 1) {
-                Text("Öğle")
-                    .font(.system(size: 8, weight: .bold))
-                    .foregroundColor(.white.opacity(0.8))
-                Text(entry.prayerTimes.ogle)
-                    .font(.system(size: 10, weight: .bold))
-                    .foregroundColor(.white)
-            }
-            .frame(maxWidth: .infinity)
-            
-            // İkindi
-            VStack(spacing: 1) {
-                Text("İkindi")
-                    .font(.system(size: 8, weight: .bold))
-                    .foregroundColor(.white.opacity(0.8))
-                Text(entry.prayerTimes.ikindi)
-                    .font(.system(size: 10, weight: .bold))
-                    .foregroundColor(.white)
-            }
-            .frame(maxWidth: .infinity)
-            
-            // Akşam
-            VStack(spacing: 1) {
-                Text("Akşam")
-                    .font(.system(size: 8, weight: .bold))
-                    .foregroundColor(.white.opacity(0.8))
-                Text(entry.prayerTimes.aksam)
-                    .font(.system(size: 10, weight: .bold))
-                    .foregroundColor(.white)
-            }
-            .frame(maxWidth: .infinity)
-            
-            // Yatsı
-            VStack(spacing: 1) {
-                Text("Yatsı")
-                    .font(.system(size: 8, weight: .bold))
-                    .foregroundColor(.white.opacity(0.8))
-                Text(entry.prayerTimes.yatsi)
-                    .font(.system(size: 10, weight: .bold))
-                    .foregroundColor(.white)
+            HStack(spacing: 4) {
+                PrayerTimeColumn(name: "İmsak", time: entry.prayerTimes.imsak)
+                PrayerTimeColumn(name: "Güneş", time: entry.prayerTimes.gunes)
+                PrayerTimeColumn(name: "Öğle", time: entry.prayerTimes.ogle)
+                PrayerTimeColumn(name: "İkindi", time: entry.prayerTimes.ikindi)
+                PrayerTimeColumn(name: "Akşam", time: entry.prayerTimes.aksam)
+                PrayerTimeColumn(name: "Yatsı", time: entry.prayerTimes.yatsi)
             }
             .frame(maxWidth: .infinity)
         }
-        .padding(.horizontal, 4)
-        .padding(.vertical, 2)
-        .background(
-            LinearGradient(
-                gradient: Gradient(colors: [Color(red: 0.2, green: 0.4, blue: 0.8), Color(red: 0.1, green: 0.3, blue: 0.6)]),
-                startPoint: .topLeading,
-                endPoint: .bottomTrailing
-            )
-        )
-        .cornerRadius(8)
+        .padding()
+        .background(Color(red: 0x0F/255.0, green: 0x4C/255.0, blue: 0x75/255.0))
+    }
+}
+
+struct PrayerTimeColumn: View {
+    let name: String
+    let time: String
+    
+    var body: some View {
+        VStack(spacing: 2) {
+            Text(name)
+                .font(.system(size: 9, weight: .semibold))
+                .foregroundColor(Color(red: 0xBB/255.0, green: 0xE1/255.0, blue: 0xFA/255.0))
+            Text(time)
+                .font(.system(size: 11, weight: .bold))
+                .foregroundColor(.white)
+        }
+        .frame(maxWidth: .infinity)
     }
 }
 
@@ -152,17 +121,21 @@ struct PrayerTimesWidget: Widget {
 
     var body: some WidgetConfiguration {
         StaticConfiguration(kind: kind, provider: Provider()) { entry in
-            PrayerTimesWidgetEntryView(entry: entry)
+            if #available(iOS 17.0, *) {
+                PrayerTimesWidgetEntryView(entry: entry)
+                    .containerBackground(Color(red: 0x0F/255.0, green: 0x4C/255.0, blue: 0x75/255.0), for: .widget)
+            } else {
+                PrayerTimesWidgetEntryView(entry: entry)
+            }
         }
         .configurationDisplayName("Namaz Vakitleri")
         .description("Günlük namaz vakitlerini gösterir")
-        .supportedFamilies([.systemSmall])
+        .supportedFamilies([.systemMedium, .systemSmall])
     }
 }
 
-struct PrayerTimesWidget_Previews: PreviewProvider {
-    static var previews: some View {
-        PrayerTimesWidgetEntryView(entry: PrayerTimesEntry(date: Date(), prayerTimes: PrayerTimesData.placeholder))
-            .previewContext(WidgetPreviewContext(family: .systemSmall))
-    }
+#Preview(as: .systemMedium) {
+    PrayerTimesWidget()
+} timeline: {
+    PrayerTimesEntry(date: .now, prayerTimes: PrayerTimesData.placeholder)
 }

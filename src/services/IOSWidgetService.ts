@@ -11,7 +11,7 @@ class IOSWidgetService {
   // Widget'ı namaz vakitleri ile güncelle
   static updateWidget(prayerTimes: PrayerTimes, cityName: string): void {
     try {
-      if (IOSWidgetModule && IOSWidgetModule.updateWidget) {
+      if (IOSWidgetModule && IOSWidgetModule.updateWidgetData) {
         // Türkiye saat dilimi ile güncel tarihi al
         const now = new Date();
         const turkeyTime = new Date(now.getTime() + (3 * 60 * 60 * 1000));
@@ -20,8 +20,24 @@ class IOSWidgetService {
           month: 'long',
           year: 'numeric'
         });
-        
-        IOSWidgetModule.updateWidget(prayerTimes, cityName, formattedDate);
+
+        const widgetData = {
+          timings: {
+            "Imsak": prayerTimes.fajr,
+            "Sunrise": prayerTimes.sunrise,
+            "Dhuhr": prayerTimes.dhuhr,
+            "Asr": prayerTimes.asr,
+            "Maghrib": prayerTimes.maghrib,
+            "Isha": prayerTimes.isha
+          },
+          cityName: cityName,
+          date: formattedDate
+        };
+
+        // Note: The native module exports 'updateWidgetData', not 'updateWidget'
+        IOSWidgetModule.updateWidgetData(widgetData);
+      } else {
+        console.warn('IOSWidgetModule or updateWidgetData not found');
       }
     } catch (error) {
       console.error('iOS Widget güncellenirken hata:', error);

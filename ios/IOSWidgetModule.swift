@@ -12,7 +12,7 @@ class IOSWidgetModule: NSObject {
     
     @objc
     func updateWidgetData(_ data: [String: Any]) {
-        let userDefaults = UserDefaults(suiteName: "group.com.namazvakitleri.widget") ?? UserDefaults.standard
+        let userDefaults = UserDefaults(suiteName: "group.com.metinaksu.namazvakitleri") ?? UserDefaults.standard
         
         // Store prayer times data
         if let timings = data["timings"] as? [String: String] {
@@ -26,6 +26,10 @@ class IOSWidgetModule: NSObject {
         
         if let cityName = data["cityName"] as? String {
             userDefaults.set(cityName, forKey: "cityName")
+        }
+        
+        if let date = data["date"] as? String {
+            userDefaults.set(date, forKey: "date")
         }
         
         userDefaults.synchronize()
