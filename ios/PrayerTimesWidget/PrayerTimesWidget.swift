@@ -57,7 +57,26 @@ struct Provider: TimelineProvider {
     }
     
     private func loadPrayerTimesFromUserDefaults() -> PrayerTimesData {
-        let userDefaults = UserDefaults(suiteName: "group.com.metinaksu.namazvakitleri") ?? UserDefaults.standard
+        guard let userDefaults = UserDefaults(suiteName: "group.com.metinaksu.namazvakitleri") else {
+            print("❌ Widget: Failed to create UserDefaults with App Group")
+            return PrayerTimesData(
+                imsak: "05:30",
+                gunes: "07:00",
+                ogle: "13:15",
+                ikindi: "16:30",
+                aksam: "19:45",
+                yatsi: "21:15",
+                cityName: "App Group Hatası",
+                dateStr: ""
+            )
+        }
+        
+        // Debug: Print all keys in UserDefaults
+        let allKeys = userDefaults.dictionaryRepresentation().keys
+        print("🕌 Widget: UserDefaults keys: \(allKeys)")
+        
+        let cityName = userDefaults.string(forKey: "cityName")
+        print("🕌 Widget: cityName from UserDefaults: \(cityName ?? "nil")")
         
         return PrayerTimesData(
             imsak: userDefaults.string(forKey: "imsak") ?? "05:30",
@@ -66,7 +85,7 @@ struct Provider: TimelineProvider {
             ikindi: userDefaults.string(forKey: "asr") ?? "16:30",
             aksam: userDefaults.string(forKey: "maghrib") ?? "19:45",
             yatsi: userDefaults.string(forKey: "isha") ?? "21:15",
-            cityName: userDefaults.string(forKey: "cityName") ?? "Şehir Seçilmedi",
+            cityName: cityName ?? "Şehir Seçilmedi",
             dateStr: userDefaults.string(forKey: "date") ?? ""
         )
     }
@@ -134,8 +153,11 @@ struct PrayerTimesWidget: Widget {
     }
 }
 
+#if swift(>=5.9)
+@available(iOS 17.0, *)
 #Preview(as: .systemMedium) {
     PrayerTimesWidget()
 } timeline: {
     PrayerTimesEntry(date: .now, prayerTimes: PrayerTimesData.placeholder)
 }
+#endif

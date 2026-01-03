@@ -1,9 +1,12 @@
 import Foundation
 import React
 import WidgetKit
+import os.log
 
 @objc(IOSWidgetModule)
 class IOSWidgetModule: NSObject {
+    
+    private let logger = Logger(subsystem: "com.metinaksu.namazvakitleri", category: "WidgetModule")
     
     @objc
     static func requiresMainQueueSetup() -> Bool {
@@ -12,7 +15,17 @@ class IOSWidgetModule: NSObject {
     
     @objc
     func updateWidgetData(_ data: [String: Any]) {
-        let userDefaults = UserDefaults(suiteName: "group.com.metinaksu.namazvakitleri") ?? UserDefaults.standard
+        logger.info("🕌 IOSWidgetModule.updateWidgetData called")
+        NSLog("🕌 IOSWidgetModule.updateWidgetData called with data: %@", "\(data)")
+        
+        guard let userDefaults = UserDefaults(suiteName: "group.com.metinaksu.namazvakitleri") else {
+            logger.error("❌ Failed to create UserDefaults with App Group")
+            NSLog("❌ Failed to create UserDefaults with App Group")
+            return
+        }
+        
+        logger.info("✅ UserDefaults created successfully")
+        NSLog("✅ UserDefaults created successfully")
         
         // Store prayer times data
         if let timings = data["timings"] as? [String: String] {
@@ -34,10 +47,15 @@ class IOSWidgetModule: NSObject {
         
         userDefaults.synchronize()
         
+        logger.info("✅ Widget data saved to UserDefaults")
+        NSLog("✅ Widget data saved to UserDefaults")
+        
         // Trigger widget update
         DispatchQueue.main.async {
             if #available(iOS 14.0, *) {
                 WidgetCenter.shared.reloadAllTimelines()
+                self.logger.info("✅ Widget timeline reloaded")
+                NSLog("✅ Widget timeline reloaded")
             }
         }
     }

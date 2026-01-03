@@ -9,6 +9,7 @@ import ActivityKit
 import WidgetKit
 import SwiftUI
 
+@available(iOS 16.1, *)
 struct PrayerTimesWidgetAttributes: ActivityAttributes {
     public struct ContentState: Codable, Hashable {
         // Dynamic stateful properties about your activity go here!
@@ -19,6 +20,7 @@ struct PrayerTimesWidgetAttributes: ActivityAttributes {
     var name: String
 }
 
+@available(iOS 16.1, *)
 struct PrayerTimesWidgetLiveActivity: Widget {
     var body: some WidgetConfiguration {
         ActivityConfiguration(for: PrayerTimesWidgetAttributes.self) { context in
@@ -56,12 +58,14 @@ struct PrayerTimesWidgetLiveActivity: Widget {
     }
 }
 
+@available(iOS 16.1, *)
 extension PrayerTimesWidgetAttributes {
     fileprivate static var preview: PrayerTimesWidgetAttributes {
         PrayerTimesWidgetAttributes(name: "World")
     }
 }
 
+@available(iOS 16.1, *)
 extension PrayerTimesWidgetAttributes.ContentState {
     fileprivate static var smiley: PrayerTimesWidgetAttributes.ContentState {
         PrayerTimesWidgetAttributes.ContentState(emoji: "😀")
@@ -72,9 +76,13 @@ extension PrayerTimesWidgetAttributes.ContentState {
      }
 }
 
+// Preview requires iOS 17+
+#if swift(>=5.9)
+@available(iOS 17.0, *)
 #Preview("Notification", as: .content, using: PrayerTimesWidgetAttributes.preview) {
    PrayerTimesWidgetLiveActivity()
 } contentStates: {
     PrayerTimesWidgetAttributes.ContentState.smiley
     PrayerTimesWidgetAttributes.ContentState.starEyes
 }
+#endif

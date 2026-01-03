@@ -10,7 +10,18 @@ const { IOSWidgetModule } = NativeModules;
 class IOSWidgetService {
   // Widget'ı namaz vakitleri ile güncelle
   static updateWidget(prayerTimes: PrayerTimes, cityName: string): void {
+    if (Platform.OS !== 'ios') {
+      console.log('🕌 IOSWidgetService: Not iOS, skipping');
+      return;
+    }
+    
+    console.log('🕌 IOSWidgetService.updateWidget called with cityName:', cityName);
+    console.log('🕌 IOSWidgetService.updateWidget prayerTimes:', JSON.stringify(prayerTimes));
     try {
+      console.log('🕌 IOSWidgetModule available:', !!IOSWidgetModule);
+      console.log('🕌 updateWidgetData available:', !!IOSWidgetModule?.updateWidgetData);
+      console.log('🕌 IOSWidgetModule:', IOSWidgetModule);
+      
       if (IOSWidgetModule && IOSWidgetModule.updateWidgetData) {
         // Türkiye saat dilimi ile güncel tarihi al
         const now = new Date();
@@ -34,13 +45,16 @@ class IOSWidgetService {
           date: formattedDate
         };
 
+        console.log('🕌 Sending widget data:', JSON.stringify(widgetData));
         // Note: The native module exports 'updateWidgetData', not 'updateWidget'
         IOSWidgetModule.updateWidgetData(widgetData);
+        console.log('🕌 Widget data sent successfully');
       } else {
-        console.warn('IOSWidgetModule or updateWidgetData not found');
+        console.warn('❌ IOSWidgetModule or updateWidgetData not found');
+        console.warn('❌ NativeModules:', JSON.stringify(Object.keys(NativeModules)));
       }
     } catch (error) {
-      console.error('iOS Widget güncellenirken hata:', error);
+      console.error('❌ iOS Widget güncellenirken hata:', error);
     }
   }
 
