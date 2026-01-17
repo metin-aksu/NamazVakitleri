@@ -23,6 +23,7 @@ import Animated, {
 import { Subscription } from 'rxjs';
 import StorageService from '../services/StorageService';
 import QiblaService from '../services/QiblaService';
+import GeomagneticDeclination from '../services/GeomagneticDeclination';
 import { City } from '../types';
 
 const { width } = Dimensions.get('window');
@@ -35,6 +36,7 @@ const QiblaCompassScreen = ({ navigation }: { navigation: any }) => {
   const [qiblaAngle, setQiblaAngle] = useState(0);
   const [heading, setHeading] = useState(0);
   const [selectedCity, setSelectedCity] = useState<City | null>(null);
+  const [declination, setDeclination] = useState(0);
   const [subscription, setSubscription] = useState<Subscription | null>(null);
   const [isCalibrated, setIsCalibrated] = useState(false);
 
@@ -55,11 +57,11 @@ const QiblaCompassScreen = ({ navigation }: { navigation: any }) => {
 
   useEffect(() => {
     // Smooth rotation animation
-    rotateValue.value = withSpring(-heading, {
+    rotateValue.value = withSpring(heading, {
       damping: 20,
       stiffness: 90,
     });
-  }, [heading]);
+  }, [heading, rotateValue]);
 
   useEffect(() => {
     qiblaIndicatorValue.value = withTiming(qiblaAngle, {
@@ -78,6 +80,12 @@ const QiblaCompassScreen = ({ navigation }: { navigation: any }) => {
         settings.selectedCity.longitude
       );
       setQiblaAngle(angle);
+      // Manyetik sapmayı hesapla
+      const decl = GeomagneticDeclination.getDeclination(
+        settings.selectedCity.latitude,
+        settings.selectedCity.longitude
+      );
+      setDeclination(decl);
     } else {
       Alert.alert('Hata', 'Konum bilgisi bulunamadı. Lütfen önce şehir seçiniz.', [
         { text: 'Tamam', onPress: () => navigation.goBack() }
@@ -101,8 +109,13 @@ const QiblaCompassScreen = ({ navigation }: { navigation: any }) => {
             magHeading += 360;
           }
 
+          // Manyetik sapmayı uygula (true north düzeltmesi)
+          let trueHeading = magHeading + declination;
+          if (trueHeading < 0) trueHeading += 360;
+          if (trueHeading >= 360) trueHeading -= 360;
+
           // Low Pass Filter for smoothing
-          let diff = magHeading - lastHeading;
+          let diff = trueHeading - lastHeading;
           if (diff > 180) diff -= 360;
           if (diff < -180) diff += 360;
 
@@ -114,10 +127,7 @@ const QiblaCompassScreen = ({ navigation }: { navigation: any }) => {
         },
         error: (err) => {
           console.log('Magnetometer error:', err);
-          // On Simulator, this error is expected. We can just ignore it or show a message.
-          // Don't crash.
           if (Platform.OS === 'ios' && __DEV__) {
-            // Mock behavior for simulator if needed, or just log
             console.warn('Sensors not available on Simulator');
           }
         }
@@ -126,7 +136,6 @@ const QiblaCompassScreen = ({ navigation }: { navigation: any }) => {
       setSubscription(sub);
     } catch (err) {
       console.log('Compass setup error:', err);
-      // Graceful fallback
     }
   };
 
@@ -137,13 +146,7 @@ const QiblaCompassScreen = ({ navigation }: { navigation: any }) => {
   });
 
   const qiblaPointerStyle = useAnimatedStyle(() => {
-    // The qibla pointer logic:
-    // If the compass image rotates to show North at top, 
-    // the Qibla pointer should point to the Qibla angle relative to North.
-    // So if Qibla is 150 deg, and Compass is rotated by -Heading.
-    // We just need to place the indicator at 150 deg on the dial?
-    // Yes, if the dial rotates, the children of the dial rotate with it.
-    // So we just place the marker at `qiblaAngle` degrees relative to the dial's 12 o'clock.
+    // Kıble işareti pusula ile birlikte döner, pusula üzerinde qiblaAngle derecesinde sabit kalır
     return {
       transform: [{ rotate: `${qiblaIndicatorValue.value}deg` }]
     };
@@ -210,7 +213,7 @@ const QiblaCompassScreen = ({ navigation }: { navigation: any }) => {
 
       <View style={styles.footer}>
         <Text style={styles.footerText}>
-          Telefonunuzu yere paralel tutun ve metal eşyalardan uzak durun.
+          Telefonunuzu yere paralel tutun ve metal eşyalardan uzak durun. Telefonuzun pusulasının düzgün çalıştığından emin olun. Gerekirse fiziksel pusula ile doğrulayın.
         </Text>
       </View>
     </SafeAreaView>
@@ -240,7 +243,7 @@ const styles = StyleSheet.create({
     color: 'white',
     fontSize: 20,
     fontWeight: 'bold',
-    marginLeft: Platform.OS === 'android' ? 70 : 40,
+    marginLeft: Platform.OS === 'android' ? 40 : 40,
   },
   infoContainer: {
     alignItems: 'center',
