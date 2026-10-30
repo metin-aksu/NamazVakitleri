@@ -1,84 +1,37 @@
-import { NativeModules, Platform } from 'react-native';
+import { Platform } from 'react-native';
+import { ExtensionStorage } from '@bacons/apple-targets';
 import { PrayerTimes } from '../types';
+import { formatWidgetDate } from '../widgets/widgetStorage';
 
-interface IOSWidgetModule {
-  updateWidgetData: (data: any) => void;
-}
-
-const { IOSWidgetModule } = NativeModules;
+// Widget eklentisi (targets/widget) bu App Group'taki UserDefaults'u okur
+const APP_GROUP = 'group.com.metinaksu.namazvakitleri';
 
 class IOSWidgetService {
+  private static storage: ExtensionStorage | null = null;
+
   // Widget'ı namaz vakitleri ile güncelle
   static updateWidget(prayerTimes: PrayerTimes, cityName: string): void {
     if (Platform.OS !== 'ios') {
-      console.log('🕌 IOSWidgetService: Not iOS, skipping');
       return;
     }
-    
-    console.log('🕌 IOSWidgetService.updateWidget called with cityName:', cityName);
-    console.log('🕌 IOSWidgetService.updateWidget prayerTimes:', JSON.stringify(prayerTimes));
+
     try {
-      console.log('🕌 IOSWidgetModule available:', !!IOSWidgetModule);
-      console.log('🕌 updateWidgetData available:', !!IOSWidgetModule?.updateWidgetData);
-      console.log('🕌 IOSWidgetModule:', IOSWidgetModule);
-      
-      if (IOSWidgetModule && IOSWidgetModule.updateWidgetData) {
-        // Türkiye saat dilimi ile güncel tarihi al
-        const now = new Date();
-        const turkeyTime = new Date(now.getTime() + (3 * 60 * 60 * 1000));
-        const formattedDate = turkeyTime.toLocaleDateString('tr-TR', {
-          day: 'numeric',
-          month: 'long',
-          year: 'numeric'
-        });
+      IOSWidgetService.storage ??= new ExtensionStorage(APP_GROUP);
+      const storage = IOSWidgetService.storage;
 
-        const widgetData = {
-          timings: {
-            "Imsak": prayerTimes.fajr,
-            "Sunrise": prayerTimes.sunrise,
-            "Dhuhr": prayerTimes.dhuhr,
-            "Asr": prayerTimes.asr,
-            "Maghrib": prayerTimes.maghrib,
-            "Isha": prayerTimes.isha
-          },
-          cityName: cityName,
-          date: formattedDate
-        };
+      // Anahtarlar PrayerTimesWidget.swift'teki loadPrayerTimesFromUserDefaults ile aynı olmalı
+      storage.set('imsak', prayerTimes.fajr);
+      storage.set('sunrise', prayerTimes.sunrise);
+      storage.set('dhuhr', prayerTimes.dhuhr);
+      storage.set('asr', prayerTimes.asr);
+      storage.set('maghrib', prayerTimes.maghrib);
+      storage.set('isha', prayerTimes.isha);
+      storage.set('cityName', cityName);
+      storage.set('date', formatWidgetDate());
 
-        console.log('🕌 Sending widget data:', JSON.stringify(widgetData));
-        // Note: The native module exports 'updateWidgetData', not 'updateWidget'
-        IOSWidgetModule.updateWidgetData(widgetData);
-        console.log('🕌 Widget data sent successfully');
-      } else {
-        console.warn('❌ IOSWidgetModule or updateWidgetData not found');
-        console.warn('❌ NativeModules:', JSON.stringify(Object.keys(NativeModules)));
-      }
+      ExtensionStorage.reloadWidget();
     } catch (error) {
       console.error('❌ iOS Widget güncellenirken hata:', error);
-    }
-  }
-
-  static updateWidgetLegacy(prayerTimes: PrayerTimes, cityName: string): void {
-    if (Platform.OS !== 'ios') {
-      return;
-    }
-
-    if (!IOSWidgetModule) {
-      console.warn('iOS Widget Module not available');
-      return;
-    }
-
-    try {
-      const widgetData = {
-        timings: prayerTimes.timings,
-        cityName: cityName,
-        date: prayerTimes.date?.readable || new Date().toLocaleDateString('tr-TR'),
-      };
-
-      IOSWidgetModule.updateWidgetData(widgetData);
-      console.log('iOS Widget updated successfully');
-    } catch (error) {
-      console.error('Error updating iOS widget:', error);
     }
   }
 }

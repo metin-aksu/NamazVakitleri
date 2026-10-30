@@ -1,44 +1,58 @@
-import { NativeModules } from 'react-native';
+import React from 'react';
+import { Platform } from 'react-native';
+import { requestWidgetUpdate } from 'react-native-android-widget';
 import { PrayerTimes } from '../types';
-
-const { WidgetModule } = NativeModules;
+import {
+  PRAYER_TIMES_WIDGET_NAME,
+  PrayerTimesWidget,
+} from '../widgets/PrayerTimesWidget';
+import {
+  WidgetStoredData,
+  formatWidgetDate,
+  getWidgetData,
+  saveWidgetData,
+} from '../widgets/widgetStorage';
 
 class WidgetService {
   // Widget'ı namaz vakitleri ile güncelle
-  static updateWidget(prayerTimes: PrayerTimes, cityName: string): void {
+  static async updateWidget(prayerTimes: PrayerTimes, cityName: string): Promise<void> {
+    if (Platform.OS !== 'android') {
+      return;
+    }
+
     try {
-      if (WidgetModule && WidgetModule.updateWidget) {
-        // Türkiye saat dilimi ile güncel tarihi al
-        const now = new Date();
-        const turkeyTime = new Date(now.getTime() + (3 * 60 * 60 * 1000));
-        const formattedDate = turkeyTime.toLocaleDateString('tr-TR', {
-          day: 'numeric',
-          month: 'long',
-          year: 'numeric'
-        });
-        
-        console.log('Widget güncelleniyor:', { cityName, date: formattedDate });
-        WidgetModule.updateWidget(prayerTimes, cityName, formattedDate);
-      }
+      const data: WidgetStoredData = {
+        prayerTimes,
+        cityName,
+        date: formatWidgetDate(),
+      };
+
+      console.log('Widget güncelleniyor:', { cityName, date: data.date });
+      await saveWidgetData(data);
+      await WidgetService.render(data);
     } catch (error) {
       console.error('Widget güncellenirken hata:', error);
     }
   }
 
   // Widget'ı manuel yenile
-  static refreshWidget(): void {
+  static async refreshWidget(): Promise<void> {
+    if (Platform.OS !== 'android') {
+      return;
+    }
+
     try {
-      if (WidgetModule && WidgetModule.refreshWidget) {
-        WidgetModule.refreshWidget();
-      }
+      await WidgetService.render(await getWidgetData());
     } catch (error) {
       console.error('Widget yenilenirken hata:', error);
     }
   }
 
-  // Widget'ın desteklenip desteklenmediğini kontrol et
-  static isWidgetSupported(): boolean {
-    return WidgetModule && WidgetModule.updateWidget ? true : false;
+  private static render(data: WidgetStoredData | null): Promise<void> {
+    return requestWidgetUpdate({
+      widgetName: PRAYER_TIMES_WIDGET_NAME,
+      renderWidget: () => <PrayerTimesWidget data={data} />,
+    });
   }
 }
 

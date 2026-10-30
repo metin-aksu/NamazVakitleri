@@ -113,7 +113,6 @@ class PrayerTimesService {
         'Accept': 'application/json',
         'Content-Type': 'application/json',
       },
-      timeout: 10000
     });
 
     if (!response.ok) {
@@ -154,7 +153,6 @@ class PrayerTimesService {
       headers: {
         'Accept': 'application/json',
       },
-      timeout: 15000
     });
 
     if (!response.ok) {

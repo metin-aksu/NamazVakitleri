@@ -1,4 +1,85 @@
 {
-  "name": "NamazVakitleri",
-  "displayName": "Namaz Vaktim"
+  "expo": {
+    "name": "Namaz Vaktim",
+    "slug": "namazvakitleri",
+    "version": "1.1",
+    "orientation": "portrait",
+    "icon": "./assets/images/icon.png",
+    "scheme": "namazvakitleri",
+    "userInterfaceStyle": "automatic",
+    "backgroundColor": "#0F4C75",
+    "ios": {
+      "bundleIdentifier": "com.metinaksu.namazvakitleri",
+      "buildNumber": "1",
+      "appleTeamId": "Y5K2497B6G",
+      "supportsTablet": true,
+      "entitlements": {
+        "com.apple.security.application-groups": [
+          "group.com.metinaksu.namazvakitleri"
+        ]
+      }
+    },
+    "android": {
+      "package": "com.metinaksu.namazvakitleri",
+      "versionCode": 2,
+      "blockedPermissions": [
+        "android.permission.READ_EXTERNAL_STORAGE",
+        "android.permission.WRITE_EXTERNAL_STORAGE",
+        "android.permission.SYSTEM_ALERT_WINDOW",
+        "android.permission.VIBRATE"
+      ],
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/images/adaptive-icon-foreground.png",
+        "backgroundImage": "./assets/images/adaptive-icon-background.png",
+        "monochromeImage": "./assets/images/adaptive-icon-monochrome.png"
+      }
+    },
+    "plugins": [
+      "expo-router",
+      [
+        "expo-splash-screen",
+        {
+          "image": "./assets/images/splash-icon.png",
+          "imageWidth": 140,
+          "backgroundColor": "#0F4C75"
+        }
+      ],
+      [
+        "expo-sensors",
+        {
+          "motionPermission": "Kıble pusulası ve su terazisi için hareket sensörleri kullanılır."
+        }
+      ],
+      [
+        "expo-location",
+        {
+          "locationWhenInUsePermission": "Kıble yönünü bulunduğunuz yere göre hesaplamak ve pusulayı coğrafi kuzeye göre ayarlamak için konumunuz kullanılır.",
+          "locationAlwaysAndWhenInUsePermission": false,
+          "locationAlwaysPermission": false,
+          "motionUsagePermission": "Kıble pusulası ve su terazisi için hareket sensörleri kullanılır."
+        }
+      ],
+      [
+        "react-native-android-widget",
+        {
+          "widgets": [
+            {
+              "name": "PrayerTimesWidgetProvider",
+              "label": "Namaz Vakitleri",
+              "description": "Günlük namaz vakitleri widget - Ana ekranınızda namaz vakitlerini görün",
+              "minWidth": "294dp",
+              "minHeight": "40dp",
+              "targetCellWidth": 4,
+              "targetCellHeight": 1,
+              "resizeMode": "none",
+              "previewImage": "./assets/widget-preview.xml",
+              "updatePeriodMillis": 1800000
+            }
+          ]
+        }
+      ],
+      "@bacons/apple-targets",
+      "./plugins/withAndroidReleaseSigning"
+    ]
+  }
 }
