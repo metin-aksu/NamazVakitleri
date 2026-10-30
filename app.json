@@ -21,8 +21,9 @@
     },
     "android": {
       "package": "com.metinaksu.namazvakitleri",
-      "versionCode": 3,
+      "versionCode": 4,
       "blockedPermissions": [
+        "android.permission.ACTIVITY_RECOGNITION",
         "android.permission.READ_EXTERNAL_STORAGE",
         "android.permission.WRITE_EXTERNAL_STORAGE",
         "android.permission.SYSTEM_ALERT_WINDOW",
