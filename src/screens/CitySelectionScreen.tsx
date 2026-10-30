@@ -6,19 +6,16 @@ import {
   FlatList,
   TouchableOpacity,
   TextInput,
-  SafeAreaView,
-  StatusBar,
   BackHandler,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { useRouter } from 'expo-router';
 import { City, District } from '../types';
 import PrayerTimesService from '../services/PrayerTimesService';
 import StorageService from '../services/StorageService';
 
-interface CitySelectionScreenProps {
-  navigation: any;
-}
-
-const CitySelectionScreen: React.FC<CitySelectionScreenProps> = ({ navigation }) => {
+const CitySelectionScreen: React.FC = () => {
+  const router = useRouter();
   const [cities, setCities] = useState<City[]>([]);
   const [filteredItems, setFilteredItems] = useState<any[]>([]); // Cities or Districts
   const [searchQuery, setSearchQuery] = useState('');
@@ -96,7 +93,7 @@ const CitySelectionScreen: React.FC<CitySelectionScreenProps> = ({ navigation })
       await StorageService.setOnboardingCompleted();
 
       // Ana ekrana geç
-      navigation.replace('Home');
+      router.replace('/');
     } catch (error) {
       console.error('İlçe seçilirken hata:', error);
     }
@@ -113,8 +110,6 @@ const CitySelectionScreen: React.FC<CitySelectionScreenProps> = ({ navigation })
 
   return (
     <SafeAreaView style={styles.container}>
-      <StatusBar barStyle="light-content" backgroundColor="#0F4C75" />
-
       <View style={styles.header}>
         {step === 'district' && (
           <TouchableOpacity
@@ -159,7 +154,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#0F4C75',
-    paddingTop: StatusBar.currentHeight,
   },
   header: {
     padding: 20,

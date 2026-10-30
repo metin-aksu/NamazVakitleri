@@ -75,3 +75,12 @@ yarn-error.log
 !.yarn/releases
 !.yarn/sdks
 !.yarn/versions
+
+# Expo
+.expo/
+expo-env.d.ts
+# Native klasörler `expo prebuild` ile app.json + plugins'den üretilir
+/android
+/ios
+# Release imza dosyaları
+/credentials/

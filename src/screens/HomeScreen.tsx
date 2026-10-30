@@ -3,26 +3,23 @@ import {
   View,
   Text,
   StyleSheet,
-  SafeAreaView,
   ActivityIndicator,
   Alert,
   TouchableOpacity,
   RefreshControl,
   ScrollView,
-  StatusBar,
   Linking,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { useRouter } from 'expo-router';
 import { PrayerTimes, UserSettings } from '../types';
 import PrayerTimesService from '../services/PrayerTimesService';
 import StorageService from '../services/StorageService';
 import WidgetService from '../services/WidgetService';
 import IOSWidgetService from '../services/IOSWidgetService';
 
-interface HomeScreenProps {
-  navigation: any;
-}
-
-const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
+const HomeScreen: React.FC = () => {
+  const router = useRouter();
   const [prayerTimes, setPrayerTimes] = useState<PrayerTimes | null>(null);
   const [userSettings, setUserSettings] = useState<UserSettings | null>(null);
   const [loading, setLoading] = useState(true);
@@ -38,7 +35,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
         if (settings && settings.selectedCity) {
           await loadPrayerTimes(settings.selectedCity);
         } else {
-          navigation.replace('CitySelection');
+          router.replace('/city-selection');
         }
       } catch (error) {
         console.error('Veri yüklenirken hata:', error);
@@ -50,7 +47,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
 
     loadInitialData();
     updateCurrentDate();
-  }, [navigation]);
+  }, [router]);
 
   const updateCurrentDate = () => {
     const date = new Date();
@@ -160,7 +157,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
   };
 
   const changeCity = () => {
-    navigation.navigate('CitySelection');
+    router.push('/city-selection');
   };
 
   const openWebsite = () => {
@@ -181,8 +178,6 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <StatusBar barStyle="light-content" backgroundColor="#0F4C75" />
-
       <ScrollView
         refreshControl={
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
@@ -402,7 +397,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
         )}
 
         <View style={styles.actionButtonsContainer}>
-          <TouchableOpacity style={styles.bottomQiblaButton} onPress={() => navigation.navigate('QiblaCompass')}>
+          <TouchableOpacity style={styles.bottomQiblaButton} onPress={() => router.push('/qibla')}>
             <Text style={styles.qiblaButtonText}>🧭 Kıble'yi Bul</Text>
           </TouchableOpacity>
         </View>
@@ -423,7 +418,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#0F4C75',
-    paddingTop: StatusBar.currentHeight,
   },
   scrollView: {
     flex: 1,
@@ -567,7 +561,6 @@ const styles = StyleSheet.create({
     backgroundColor: '#0F4C75',
     borderTopWidth: 1,
     borderTopColor: 'rgba(255, 255, 255, 0.1)',
-    marginBottom: 50,
   },
   footerText: {
     color: '#BBE1FA',
